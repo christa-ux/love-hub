@@ -59,7 +59,7 @@ function MainApp() {
                 : 'text-pink-500 hover:bg-pink-100'
             }`}
           >
-            Love Notes
+            Our Life
           </button>
         </div>
       </nav>

@@ -21,6 +21,7 @@ function Ideas() {
   })
   const [loading, setLoading] = useState(true)
   const [newItem, setNewItem] = useState('')
+  const [newItemPerson, setNewItemPerson] = useState('koukou')
   const [editingId, setEditingId] = useState(null)
   const [editText, setEditText] = useState('')
 
@@ -58,6 +59,7 @@ function Ideas() {
       const itemsRef = collection(db, 'couples', coupleCode, activeCategory)
       await addDoc(itemsRef, {
         text: newItem,
+        person: newItemPerson,
         completed: false,
         createdAt: new Date().toISOString()
       })
@@ -188,21 +190,45 @@ function Ideas() {
         </h2>
 
         {/* Add New Item */}
-        <div className="flex gap-2 mb-6">
-          <input
-            type="text"
-            value={newItem}
-            onChange={(e) => setNewItem(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && addItem()}
-            placeholder={`Add a new ${currentCategory.label.toLowerCase().slice(0, -1)}...`}
-            className={`flex-1 px-4 py-3 border ${getColorClasses(currentCategory.color, 'border')} rounded-xl focus:outline-none focus:ring-2 ${getColorClasses(currentCategory.color, 'ring')}`}
-          />
-          <button
-            onClick={addItem}
-            className={`px-6 py-3 ${getColorClasses(currentCategory.color, 'bgActive')} text-white rounded-xl font-medium hover:opacity-90 transition-opacity`}
-          >
-            Add
-          </button>
+        <div className="space-y-3 mb-6">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newItem}
+              onChange={(e) => setNewItem(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && addItem()}
+              placeholder={`Add a new ${currentCategory.label.toLowerCase().slice(0, -1)}...`}
+              className={`flex-1 px-4 py-3 border ${getColorClasses(currentCategory.color, 'border')} rounded-xl focus:outline-none focus:ring-2 ${getColorClasses(currentCategory.color, 'ring')}`}
+            />
+            <button
+              onClick={addItem}
+              className={`px-6 py-3 ${getColorClasses(currentCategory.color, 'bgActive')} text-white rounded-xl font-medium hover:opacity-90 transition-opacity`}
+            >
+              Add
+            </button>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setNewItemPerson('koukou')}
+              className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${
+                newItemPerson === 'koukou'
+                  ? 'bg-pink-400 text-white'
+                  : 'bg-pink-100 text-pink-600'
+              }`}
+            >
+              Koukou
+            </button>
+            <button
+              onClick={() => setNewItemPerson('ruru')}
+              className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${
+                newItemPerson === 'ruru'
+                  ? 'bg-blue-400 text-white'
+                  : 'bg-blue-100 text-blue-600'
+              }`}
+            >
+              Ruru
+            </button>
+          </div>
         </div>
 
         {/* Items List */}
@@ -226,7 +252,7 @@ function Ideas() {
                 {/* Checkbox */}
                 <button
                   onClick={() => toggleComplete(item)}
-                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
+                  className={`w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
                     item.completed
                       ? `${getColorClasses(currentCategory.color, 'bgActive')} border-transparent`
                       : `border-gray-300 ${getColorClasses(currentCategory.color, 'hover')}`
@@ -239,28 +265,40 @@ function Ideas() {
                   )}
                 </button>
 
-                {/* Text */}
-                {editingId === item.id ? (
-                  <input
-                    type="text"
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && saveEdit()}
-                    onBlur={saveEdit}
-                    autoFocus
-                    className="flex-1 px-2 py-1 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
-                  />
-                ) : (
-                  <span
-                    className={`flex-1 ${item.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}
-                    onDoubleClick={() => startEdit(item)}
-                  >
-                    {item.text}
-                  </span>
-                )}
+                {/* Text and Person */}
+                <div className="flex-1 min-w-0">
+                  {editingId === item.id ? (
+                    <input
+                      type="text"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && saveEdit()}
+                      onBlur={saveEdit}
+                      autoFocus
+                      className="w-full px-2 py-1 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+                    />
+                  ) : (
+                    <div onDoubleClick={() => startEdit(item)}>
+                      <span className={`block ${item.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                        {item.text}
+                      </span>
+                      <span className={`text-xs ${item.person === 'ruru' ? 'text-blue-400' : 'text-pink-400'}`}>
+                        by {item.person === 'ruru' ? 'Ruru' : 'Koukou'}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Person Badge */}
+                <div
+                  className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                    item.person === 'ruru' ? 'bg-blue-400' : 'bg-pink-400'
+                  }`}
+                  title={item.person === 'ruru' ? 'Ruru' : 'Koukou'}
+                />
 
                 {/* Actions */}
-                <div className="flex gap-1">
+                <div className="flex gap-1 flex-shrink-0">
                   <button
                     onClick={() => startEdit(item)}
                     className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
